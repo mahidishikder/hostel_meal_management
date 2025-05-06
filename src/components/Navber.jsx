@@ -6,8 +6,9 @@ import { SiFoodpanda } from "react-icons/si";
 import { AuthContext } from "../provider/AuthProvider";
 
 const Navbar = () => {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext); // AuthContext থেকে ইউজার স্টেট নেওয়া
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const navItems = [
     { name: "Home", path: "/" },
@@ -16,9 +17,8 @@ const Navbar = () => {
   ];
 
   const handleMenuItemClick = () => {
-    if (menuOpen) {
-      setMenuOpen(false); // Close the menu when a menu item is clicked
-    }
+    setMenuOpen(false);
+    setShowModal(false);
   };
 
   return (
@@ -27,10 +27,10 @@ const Navbar = () => {
         {/* Logo */}
         <Link
           to="/"
-          className="text-xl font-bold text-orange-500 flex items-center gap-2"
+          className="text-2xl lg:text-3xl font-bold text-orange-500 flex items-center gap-2"
         >
           <SiFoodpanda />
-          <span>MealMate</span>
+          <span className="text-black">MealMate</span>
         </Link>
 
         {/* Desktop Menu */}
@@ -41,8 +41,8 @@ const Navbar = () => {
               to={item.path}
               className={({ isActive }) =>
                 isActive
-                  ? "text-orange-500 font-medium"
-                  : "text-gray-700 hover:text-orange-500 transition"
+                  ? "text-orange-500 text-lg font-medium"
+                  : "text-gray-700 text-lg hover:text-orange-500 transition"
               }
             >
               {item.name}
@@ -51,28 +51,116 @@ const Navbar = () => {
 
           <FaBell className="text-xl text-gray-600 hover:text-orange-500 cursor-pointer" />
 
-          {/* Show user photo if logged in */}
-          {user?.photoURL && (
-            <img
-              src={user.photoURL}
-              alt="User"
-              className="w-8 h-8 rounded-full object-cover border-2 border-orange-500"
-            />
+          {/* User image with dropdown */}
+          {user?.photoURL ? (
+            <div className="relative">
+              <img
+                src={user.photoURL}
+                alt="User"
+                className="lg:w-11 lg:h-11 w-9 h-9 ring-1 bg-gray-200 shadow  shadow-black ring-gray-100 p-1 rounded-full object-cover border-2 border-gray-200  hover:shadow-lg transition-all duration-300 cursor-pointer"
+                onClick={() => setShowModal(!showModal)}
+              />
+              {showModal && (
+                <div className="absolute right-0 top-10 bg-white shadow-md border rounded w-48 z-50">
+                  <ul className="py-2 text-sm text-gray-700">
+                    <li>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 hover:bg-orange-100"
+                        onClick={handleMenuItemClick}
+                      >
+                        My Profile
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/dashboard"
+                        className="block px-4 py-2 hover:bg-orange-100"
+                        onClick={handleMenuItemClick}
+                      >
+                        Dashboard
+                      </Link>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setShowModal(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 hover:bg-orange-100 text-red-500"
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/join"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition text-sm"
+            >
+              Join Us
+            </Link>
           )}
-
-          <Link
-            to="/join"
-            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition text-sm"
-          >
-            Join Us
-          </Link>
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center gap-2">
-          {
-            user && <><img className="w-8 h-8 rounded-full" src={user.photoURL} alt="" /></>
-          }
+        <div className="md:hidden flex items-center gap-2 relative">
+          {user?.photoURL ? (
+            <>
+              <img
+                className="w-8 h-8 rounded-full border-2 border-orange-500 cursor-pointer"
+                src={user.photoURL}
+                alt="User"
+                onClick={() => setShowModal(!showModal)}
+              />
+              {showModal && (
+                <div className="absolute right-12 top-10 bg-white shadow-md border rounded w-48 z-50">
+                  <ul className="py-2 text-sm text-gray-700">
+                    <li>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 hover:bg-orange-100"
+                        onClick={handleMenuItemClick}
+                      >
+                        My Profile
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/dashboard"
+                        className="block px-4 py-2 hover:bg-orange-100"
+                        onClick={handleMenuItemClick}
+                      >
+                        Dashboard
+                      </Link>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setShowModal(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 hover:bg-orange-100 text-red-500"
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </>
+          ) : (
+            <Link
+              to="/join"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm"
+            >
+              Join Us
+            </Link>
+          )}
+
           <button onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? (
               <HiX className="text-3xl text-orange-500" />
@@ -87,7 +175,6 @@ const Navbar = () => {
       {menuOpen && (
         <div className="md:hidden px-4 pb-4 space-y-3 bg-white shadow-sm">
           <div className="flex flex-col items-center justify-between">
-            {/* Left side: Logo */}
             <Link
               to="/"
               className="text-xl font-bold text-orange-500 flex items-center gap-2"
@@ -96,16 +183,6 @@ const Navbar = () => {
               <span>MealMate</span>
             </Link>
 
-            {/* Right side: User Image */}
-            {user?.photoURL && (
-              <img
-                src={user.photoURL}
-                alt="User"
-                className="w-10 h-10 mt-2 rounded-full object-cover border-2 border-orange-500"
-              />
-            )}
-
-            {/* Menu Items Below User Image */}
             <div className="mt-4 space-y-3 text-center">
               {navItems.map((item) => (
                 <NavLink
@@ -117,14 +194,15 @@ const Navbar = () => {
                   {item.name}
                 </NavLink>
               ))}
-
-              <Link
-                to="/join"
-                onClick={handleMenuItemClick}
-                className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm"
-              >
-                Join Us
-              </Link>
+              {!user && (
+                <Link
+                  to="/join"
+                  onClick={handleMenuItemClick}
+                  className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm"
+                >
+                  Join Us
+                </Link>
+              )}
             </div>
           </div>
         </div>
