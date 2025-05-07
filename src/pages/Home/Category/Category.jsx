@@ -4,7 +4,7 @@ import { Navigation, Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaSearchengin } from 'react-icons/fa';
 
 const meals = [
   { id: 1, title: "Pasta", category: "Lunch", image: "https://i.ibb.co/fdqDtC6/pasta.jpg", rating: 4.5, price: 120 },
@@ -23,9 +23,9 @@ const Category = () => {
   };
 
   const bannerImages = [
-    "https://img.freepik.com/free-photo/front-view-served-table-with-cocktails_141793-6095.jpg",
+    "https://img.freepik.com/free-photo/top-view-eid-al-fitr-celebration-with-delicious-food_23-2151205080.jpg?t=st=1746587659~exp=1746591259~hmac=661ec2db7eea6d2100e485ae1bd1a290b59cf6190b805026c8b23739c23e4c4d&w=996",
     "https://img.freepik.com/free-photo/midsection-waiter-serving-two-dishes-wooden-table_181624-54414.jpg?t=st=1746550993~exp=1746554593~hmac=edebaef7dceb27fbd309fd3471ffa1814c9d0bb4dd9143b9434a9330643718fd&w=996",
-    "https://img.freepik.com/free-photo/top-view-various-tasty-dishes_181624-36196.jpg?ga=GA1.1.1673861043.1745456048&semt=ais_hybrid&w=740"
+    "https://img.freepik.com/premium-photo/top-view-indian-food-biryani-with-side-dishes-tablecloth_665346-76433.jpg?w=996"
   ];
 
   const filteredMeals = meals.filter((meal) => {
@@ -37,7 +37,7 @@ const Category = () => {
   return (
     <div>
       {/* Banner Section */}
-      <div className="relative">
+      <div className="relative ">
         <Swiper
           modules={[Autoplay, Pagination]}
           spaceBetween={0}
@@ -52,12 +52,12 @@ const Category = () => {
           {bannerImages.map((img, idx) => (
             <SwiperSlide key={idx}>
               <div
-                className="relative bg-cover bg-center py-32 px-4 text-center"
+                className="relative bg-cover bg-center md:py-80 py-48 px-4 text-center"
                 style={{
                   backgroundImage: `url('${img}')`,
                 }}
               >
-                <div className="absolute inset-0 bg-[rgba(0,0,0,0.5)]"></div>
+                <div className="absolute inset-0 bg-[rgba(0,0,0,0.51)]"></div>
                 <div className="relative z-10">
                   <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-md">
                     Discover Delicious Hostel Meals
@@ -71,9 +71,9 @@ const Category = () => {
                       value={searchText}
                       onChange={(e) => setSearchText(e.target.value)}
                       placeholder="Search for meals like biryani, pasta, etc."
-                      className="w-full pl-10 pr-10 py-2 ring-1 ring-orange-500 border border-gray-300 rounded-full bg-white text-gray-800 shadow-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full pl-14 pr-10 py-2 ring-1 ring-orange-500 border border-gray-300 rounded-full bg-white text-gray-800 shadow-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
-                    <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-500 text-lg pointer-events-none" />
+                    <FaSearchengin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-500 text-lg pointer-events-none" />
                   </div>
                 </div>
               </div>

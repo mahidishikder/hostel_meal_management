@@ -23,7 +23,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 lg:py-5 py-3 flex justify-between items-center">
         {/* Logo */}
         <Link
           to="/"
@@ -57,7 +57,7 @@ const Navbar = () => {
               <img
                 src={user.photoURL}
                 alt="User"
-                className="lg:w-11 lg:h-11 w-9 h-9 ring-1 bg-gray-200 shadow  shadow-black ring-gray-100 p-1 rounded-full object-cover border-2 border-gray-200  hover:shadow-lg transition-all duration-300 cursor-pointer"
+                className="lg:w-10 lg:h-10 w-9 h-9 ring-1 bg-gray-200 shadow  shadow-black ring-gray-100 p-1 rounded-full object-cover border-2 border-gray-200  hover:shadow-lg transition-all duration-300 cursor-pointer"
                 onClick={() => setShowModal(!showModal)}
               />
               {showModal && (
@@ -198,7 +198,7 @@ const Navbar = () => {
                 <Link
                   to="/join"
                   onClick={handleMenuItemClick}
-                  className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm"
+                  className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-4 lg:py-3 py-2 rounded text-sm"
                 >
                   Join Us
                 </Link>
