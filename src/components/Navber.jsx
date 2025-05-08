@@ -4,6 +4,8 @@ import { useContext, useState } from "react";
 import { HiMenuAlt3, HiX } from "react-icons/hi";
 import { SiFoodpanda } from "react-icons/si";
 import { AuthContext } from "../provider/AuthProvider";
+import { RiNotificationSnoozeFill } from "react-icons/ri";
+
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext); // AuthContext থেকে ইউজার স্টেট নেওয়া
@@ -29,7 +31,7 @@ const Navbar = () => {
           to="/"
           className="text-2xl lg:text-3xl font-bold text-orange-500 flex items-center gap-2"
         >
-          <SiFoodpanda />
+          <img className="w-10" src="https://i.ibb.co.com/HpGH7h4B/Green-Beige-Circle-Healthy-Food-Logo-modified.png" alt="" />
           <span className="text-black">MealMate</span>
         </Link>
 
@@ -49,7 +51,8 @@ const Navbar = () => {
             </NavLink>
           ))}
 
-          <FaBell className="text-xl text-gray-600 hover:text-orange-500 cursor-pointer" />
+          <RiNotificationSnoozeFill
+          className="text-xl text-gray-600 hover:text-orange-500 cursor-pointer" />
 
           {/* User image with dropdown */}
           {user?.photoURL ? (

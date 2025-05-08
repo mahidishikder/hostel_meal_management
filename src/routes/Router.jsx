@@ -8,6 +8,8 @@ import Meals from "../pages/Meals/Meals";
 import UpcomingMeals from "../pages/UpcomingMeals/UpcomingMeals";
 import Join from "../pages/Join/Join";
 import Register from "../pages/Register/Register";
+import MealsAdd from "../pages/MealsAdd/MealsAdd";
+import MealsDetails from "../pages/Home/MealsDetails/MealsDetails";
 
 
   export const router = createBrowserRouter([
@@ -33,8 +35,15 @@ import Register from "../pages/Register/Register";
             path:'/join'
         },
         {
+          element:<MealsDetails></MealsDetails>,
+          path:'/mealsDetails/:id'
+        },
+        {
           element:<Register></Register>,
           path:'/register'
+        },{
+          element:<MealsAdd></MealsAdd>,
+          path:'/mealsForm'
         }
       ]
     },

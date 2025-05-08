@@ -1,31 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Autoplay, Pagination } from 'swiper/modules';
+import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { FaSearch, FaSearchengin } from 'react-icons/fa';
-
-const meals = [
-  { id: 1, title: "Pasta", category: "Lunch", image: "https://i.ibb.co/fdqDtC6/pasta.jpg", rating: 4.5, price: 120 },
-  { id: 2, title: "Paratha", category: "Breakfast", image: "https://i.ibb.co/JqykL7d/paratha.jpg", rating: 4.2, price: 60 },
-  { id: 3, title: "Chicken Curry", category: "Dinner", image: "https://i.ibb.co/sqBhCWz/chicken-curry.jpg", rating: 4.8, price: 150 },
-  { id: 4, title: "Fried Rice", category: "Lunch", image: "https://i.ibb.co/Vp6f7KT/fried-rice.jpg", rating: 4.6, price: 100 },
-  { id: 5, title: "Bread & Egg", category: "Breakfast", image: "https://i.ibb.co/9ZZhnVm/bread-egg.jpg", rating: 4.3, price: 70 },
-];
+import { FaSearchengin } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const Category = () => {
   const [searchText, setSearchText] = useState("");
   const [selectedTab, setSelectedTab] = useState("All");
+  const [meals, setMeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch meals from API
+  useEffect(() => {
+    fetch("http://localhost:3000/meals")
+      .then(res => res.json())
+      .then(data => {
+        setMeals(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load meals:", err);
+        setLoading(false);
+      });
+  }, []);
 
   const handleTabClick = (category) => {
     setSelectedTab(category);
   };
 
   const bannerImages = [
-    "https://img.freepik.com/free-photo/top-view-eid-al-fitr-celebration-with-delicious-food_23-2151205080.jpg?t=st=1746587659~exp=1746591259~hmac=661ec2db7eea6d2100e485ae1bd1a290b59cf6190b805026c8b23739c23e4c4d&w=996",
-    "https://img.freepik.com/free-photo/midsection-waiter-serving-two-dishes-wooden-table_181624-54414.jpg?t=st=1746550993~exp=1746554593~hmac=edebaef7dceb27fbd309fd3471ffa1814c9d0bb4dd9143b9434a9330643718fd&w=996",
-    "https://img.freepik.com/premium-photo/top-view-indian-food-biryani-with-side-dishes-tablecloth_665346-76433.jpg?w=996"
+    "https://img.freepik.com/free-photo/top-view-eid-al-fitr-celebration-with-delicious-food_23-2151205080.jpg",
+    "https://img.freepik.com/free-photo/midsection-waiter-serving-two-dishes-wooden-table_181624-54414.jpg",
+    "https://img.freepik.com/premium-photo/top-view-indian-food-biryani-with-side-dishes-tablecloth_665346-76433.jpg"
   ];
 
   const filteredMeals = meals.filter((meal) => {
@@ -36,26 +45,21 @@ const Category = () => {
 
   return (
     <div>
-      {/* Banner Section */}
+      {/* Banner */}
       <div className="relative ">
         <Swiper
           modules={[Autoplay, Pagination]}
           spaceBetween={0}
           slidesPerView={1}
           loop={true}
-          autoplay={{
-            delay: 8000, // 1 second
-            disableOnInteraction: false,
-          }}
-          pagination={{ clickable: true }} // Pagination for mobile
+          autoplay={{ delay: 8000, disableOnInteraction: false }}
+          pagination={{ clickable: true }}
         >
           {bannerImages.map((img, idx) => (
             <SwiperSlide key={idx}>
               <div
                 className="relative bg-cover bg-center md:py-80 py-48 px-4 text-center"
-                style={{
-                  backgroundImage: `url('${img}')`,
-                }}
+                style={{ backgroundImage: `url('${img}')` }}
               >
                 <div className="absolute inset-0 bg-[rgba(0,0,0,0.51)]"></div>
                 <div className="relative z-10">
@@ -104,13 +108,16 @@ const Category = () => {
         <h2 className="text-3xl font-bold mb-6 text-orange-500">
           {selectedTab === "All" ? "All Meals" : `${selectedTab} Meals`}
         </h2>
-        {filteredMeals.length === 0 ? (
+
+        {loading ? (
+          <p className="text-center text-gray-500 mt-10">Loading meals...</p>
+        ) : filteredMeals.length === 0 ? (
           <p className="text-center text-gray-500 mt-10">No meals found matching your search.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {filteredMeals.map((meal) => (
               <div
-                key={meal.id}
+                key={meal._id || meal.id}
                 className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition duration-300"
               >
                 <img src={meal.image} alt={meal.title} className="w-full h-60 object-cover" />
@@ -118,10 +125,13 @@ const Category = () => {
                   <h3 className="text-xl font-semibold text-gray-800 mb-1">{meal.title}</h3>
                   <p className="text-sm text-gray-500 mb-1">Category: {meal.category}</p>
                   <p className="text-sm text-yellow-600 mb-1">⭐ Rating: {meal.rating}</p>
-                  <p className="text-sm text-green-600 font-bold">৳ {meal.price}</p>
+                  <p className="text-sm text-green-600 font-bold">$ {meal.price}</p>
+                  <Link to={`/mealsDetails/${meal._id}`}>
                   <button className="mt-4 w-full btn bg-orange-500 text-white hover:bg-orange-600">
                     View Details
                   </button>
+                  </Link>
+                  
                 </div>
               </div>
             ))}
