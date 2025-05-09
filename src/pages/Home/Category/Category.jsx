@@ -26,6 +26,7 @@ const Category = () => {
         setLoading(false);
       });
   }, []);
+  
 
   const handleTabClick = (category) => {
     setSelectedTab(category);

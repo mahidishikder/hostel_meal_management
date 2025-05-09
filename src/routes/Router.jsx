@@ -10,6 +10,11 @@ import Join from "../pages/Join/Join";
 import Register from "../pages/Register/Register";
 import MealsAdd from "../pages/MealsAdd/MealsAdd";
 import MealsDetails from "../pages/Home/MealsDetails/MealsDetails";
+import Dashboard from "../layout/Dashboard";
+import Upcomming from "../pages/upcomming/upcomming";
+import Users from "../pages/Users/Users";
+import Chart from "../pages/Chart/Chart";
+import ManageMeals from "../pages/ManageMeals/ManageMeals";
 
 
   export const router = createBrowserRouter([
@@ -41,10 +46,37 @@ import MealsDetails from "../pages/Home/MealsDetails/MealsDetails";
         {
           element:<Register></Register>,
           path:'/register'
-        },{
-          element:<MealsAdd></MealsAdd>,
-          path:'/mealsForm'
-        }
+        },
+        
       ]
     },
+
+    {
+      path:'dashboard',
+      element:<Dashboard></Dashboard>,
+      children:[
+        
+        {
+          element:<MealsAdd></MealsAdd>,
+          path:'addMeal'
+        },
+        {
+          element:<Upcomming></Upcomming>,
+          path:'addUpcomming'
+        },
+        {
+          element:<Users></Users>,
+          path:'users'
+        },
+        {
+          element:<Chart></Chart>,
+          path:'chart'
+        },
+        {
+          element:<ManageMeals></ManageMeals>,
+          path:'manageMeals'
+        }
+      
+    ]
+    }
   ]);

@@ -6,107 +6,110 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaThumbsUp } from "react-icons/fa";
 
-// Replace this with your actual API endpoint
 const API_URL = "http://localhost:3000/upcoming";
 
 function UpcomingMeals() {
   const { user } = useContext(AuthContext);
   const [meals, setMeals] = useState([]);
-  const [likedMeals, setLikedMeals] = useState([]); // Track liked meals
+  const [likedMeals, setLikedMeals] = useState([]);
 
-  // Fetch upcoming meals data from API
   useEffect(() => {
     const fetchMeals = async () => {
       try {
         const response = await axios.get(API_URL);
-        setMeals(response.data);
+        const currentDate = moment();
+        const upcomingMeals = response.data.filter(meal =>
+          moment(meal.publishDate).isAfter(currentDate)
+        );
+        setMeals(upcomingMeals);
       } catch (error) {
         console.error("Error fetching meals:", error);
-        toast.error("Failed to load meals.", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
+        toast.error("Failed to load meals.");
       }
     };
     fetchMeals();
   }, []);
 
-  // Handle Like button click
+  const isPremium = (membership) =>
+    ["Silver", "Gold", "Platinum"].includes(membership);
+
   const handleLike = (mealId) => {
     if (!user) {
-      toast.warning("Please log in to like this meal.", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
+      toast.warning("Please log in to like meals.");
+      return;
+    }
+
+    if (!isPremium(user.membership)) {
+      toast.warning("Only premium users can like meals.");
       return;
     }
 
     if (likedMeals.includes(mealId)) {
-      toast.info("You have already liked this meal.", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
+      toast.info("You already liked this meal.");
       return;
     }
 
-    // Update liked meals
     setLikedMeals((prev) => [...prev, mealId]);
-
-    // Update local like count
     setMeals((prevMeals) =>
       prevMeals.map((meal) =>
         meal._id === mealId ? { ...meal, likes: meal.likes + 1 } : meal
       )
     );
 
-    toast.success("You liked the meal!", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
-
-    // Optional: If you have backend support to update likes
+    toast.success("You liked the meal!");
+    // Optional: Send to server
     // axios.patch(`${API_URL}/like/${mealId}`);
   };
 
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-semibold mb-6">Upcoming Meals</h2>
-      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+      <h2 className="text-3xl font-bold mb-8 text-center">🍽️ Upcoming Meals</h2>
+
+      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {meals.map((meal) => (
           <div
             key={meal._id}
-            className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col lg:flex-row"
+            className="bg-white rounded-2xl shadow-md hover:shadow-lg transition duration-300 flex flex-col"
           >
-            {/* Fixed Image Size */}
             <img
               src={meal.image}
               alt={meal.name}
-              className="w-full lg:w-[300px] h-[200px] object-cover"
+              className="w-full h-56 object-cover rounded-t-2xl"
             />
 
-            {/* Info */}
-            <div className="p-6 flex flex-col justify-between w-full">
+            <div className="p-5 flex flex-col justify-between flex-grow relative">
               <div>
-                <h3 className="text-xl font-semibold text-gray-800">{meal.name}</h3>
-                <p className="text-gray-600 mt-2">{meal.description}</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Publish Date: {moment(meal.publishDate).format("MMMM Do YYYY, h:mm A")}
-                </p>
-                <p className="text-sm text-gray-600 mt-2">Likes: {meal.likes}</p>
+                <h3 className="text-xl font-bold text-gray-800">{meal.name}</h3>
+                <p className="text-gray-600 text-sm mt-2">{meal.description}</p>
+
+                <div className="mt-3 text-sm text-gray-500 space-y-1">
+                  <p><span className="font-medium text-gray-700">Meal ID:</span> {meal.id}</p>
+                  <p className="text-xs text-gray-400">
+                    Publishes On: {moment(meal.publishDate).format("MMM D, YYYY - h:mm A")}
+                  </p>
+                  <p><span className="font-medium text-gray-700">Likes:</span> {meal.likes}</p>
+                  
+                </div>
               </div>
 
-              {/* Like Button */}
-              <button
-                onClick={() => handleLike(meal._id)}
-                className={`mt-4 shadow-lg ${
-                  likedMeals.includes(meal._id) ? "bg-green-300" : "bg-gray-300"
-                } text-black py-2 px-4 justify-center rounded-full transition flex items-center`}
-              >
-                <FaThumbsUp className="mr-2 text-blue-600" />
-                {likedMeals.includes(meal._id) ? "Liked" : "Like"}
-              </button>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => handleLike(meal._id)}
+                  className={`w-9 h-9 rounded-full flex items-center justify-center transition duration-200 ${
+                    likedMeals.includes(meal._id)
+                      ? "bg-blue-500 text-white scale-105"
+                      : "bg-gray-200 text-gray-600 hover:bg-blue-100 hover:text-blue-600"
+                  }`}
+                  title={likedMeals.includes(meal._id) ? "You liked this meal" : "Like"}
+                >
+                  <FaThumbsUp className="text-md" />
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Toast Container */}
       <ToastContainer />
     </div>
   );
