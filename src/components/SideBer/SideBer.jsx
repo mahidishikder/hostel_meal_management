@@ -2,30 +2,25 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   FiHome,
-  FiPieChart,
   FiUsers,
-  FiSettings,
+  FiPlus,
+  FiChevronRight,
   FiFileText,
   FiCalendar,
-  FiMail,
   FiLogOut,
-  FiChevronRight,
-  FiPlus,
 } from 'react-icons/fi';
-import { MdManageAccounts } from "react-icons/md";
-
+import { MdManageAccounts } from 'react-icons/md';
 
 const Sidebar = () => {
   const adminNavItems = [
-    { icon: <FiHome size={20} />, label: 'Dashboard', path: '/dashboard/chart' },
+    { icon: <FiHome size={20} />, label: 'Dashboard', path: '/dashboard', end: true },
+    { icon: <FiHome size={20} />, label: 'User Profile', path: '/dashboard/userProfile', end: true },
     { icon: <FiUsers size={20} />, label: 'Manage Users', path: '/dashboard/users' },
     { icon: <FiPlus size={20} />, label: 'Add Meal', path: '/dashboard/addMeal' },
     { icon: <MdManageAccounts size={20} />, label: 'Manage Meals', path: '/dashboard/manageMeals' },
     { icon: <FiPlus size={20} />, label: 'Add Upcoming', path: '/dashboard/addUpcomming' },
+    { icon: <MdManageAccounts size={20} />, label: 'Manage Upcoming', path: '/dashboard/manageUpcomming' }, // ✅ Shortened label
   ];
-  MdManageAccounts
-
-
 
   const mainNavItems = [
     { icon: <FiHome size={20} />, label: 'Home', path: '/' },
@@ -64,6 +59,7 @@ const Sidebar = () => {
           <NavLink
             key={`admin-${index}`}
             to={item.path}
+            end={item.end || false}
             className={({ isActive }) =>
               `group flex items-center justify-between space-x-3 p-3.5 rounded-xl transition-all duration-300 ${
                 isActive
@@ -74,16 +70,9 @@ const Sidebar = () => {
           >
             {({ isActive }) => (
               <>
-                <div className="flex items-center space-x-3">
-                  <span className={`${item.badge ? 'relative' : ''}`}>
-                    {item.icon}
-                    {item.badge && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                        {item.badge}
-                      </span>
-                    )}
-                  </span>
-                  <span>{item.label}</span>
+                <div className="flex items-center space-x-3 overflow-hidden">
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  <span className="truncate max-w-[140px] block">{item.label}</span>
                 </div>
                 {isActive && <FiChevronRight className="text-orange-400" />}
               </>
@@ -91,7 +80,7 @@ const Sidebar = () => {
           </NavLink>
         ))}
 
-        {/* Divider and Main Website Links */}
+        {/* Divider */}
         <div className="pt-6 pb-2">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -103,6 +92,7 @@ const Sidebar = () => {
           </div>
         </div>
 
+        {/* Main Navigation */}
         {mainNavItems.map((item, index) => (
           <NavLink
             key={`main-${index}`}
@@ -117,16 +107,9 @@ const Sidebar = () => {
           >
             {({ isActive }) => (
               <>
-                <div className="flex items-center space-x-3">
-                  <span className={`${item.badge ? 'relative' : ''}`}>
-                    {item.icon}
-                    {item.badge && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                        {item.badge}
-                      </span>
-                    )}
-                  </span>
-                  <span>{item.label}</span>
+                <div className="flex items-center space-x-3 overflow-hidden">
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  <span className="truncate max-w-[140px] block">{item.label}</span>
                 </div>
                 {isActive && <FiChevronRight className="text-orange-400" />}
               </>

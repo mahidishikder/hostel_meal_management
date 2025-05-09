@@ -15,6 +15,8 @@ import Upcomming from "../pages/upcomming/upcomming";
 import Users from "../pages/Users/Users";
 import Chart from "../pages/Chart/Chart";
 import ManageMeals from "../pages/ManageMeals/ManageMeals";
+import ManageUpcomming from "../pages/ManageUpcomming/ManageUpcomming";
+import UserProfile from "../pages/UserProfile/UserProfile";
 
 
   export const router = createBrowserRouter([
@@ -65,17 +67,26 @@ import ManageMeals from "../pages/ManageMeals/ManageMeals";
           path:'addUpcomming'
         },
         {
+          element:<ManageUpcomming></ManageUpcomming>,
+          path:'manageUpcomming'
+        },
+        {
           element:<Users></Users>,
           path:'users'
         },
         {
           element:<Chart></Chart>,
-          path:'chart'
+          path:''
         },
         {
           element:<ManageMeals></ManageMeals>,
           path:'manageMeals'
-        }
+        },
+        {
+          element:<UserProfile></UserProfile>,
+          path:'userProfile'
+        },
+
       
     ]
     }
