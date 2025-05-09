@@ -4,7 +4,7 @@ import { AuthContext } from "../../provider/AuthProvider";
 import moment from "moment";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { FaThumbsUp } from "react-icons/fa"; // Like icon
+import { FaThumbsUp } from "react-icons/fa";
 
 // Replace this with your actual API endpoint
 const API_URL = "http://localhost:3000/upcoming";
@@ -12,6 +12,7 @@ const API_URL = "http://localhost:3000/upcoming";
 function UpcomingMeals() {
   const { user } = useContext(AuthContext);
   const [meals, setMeals] = useState([]);
+  const [likedMeals, setLikedMeals] = useState([]); // Track liked meals
 
   // Fetch upcoming meals data from API
   useEffect(() => {
@@ -31,18 +32,36 @@ function UpcomingMeals() {
 
   // Handle Like button click
   const handleLike = (mealId) => {
-    if (user && user.membership !== "premium") {
-      // Show toast if user is not premium
-      toast.warning("Premium membership is required to like this meal.", {
+    if (!user) {
+      toast.warning("Please log in to like this meal.", {
         position: toast.POSITION.TOP_RIGHT,
       });
-    } else {
-      // Handle the like action for premium users (You can update the likes here)
-      console.log("Meal liked:", mealId);
-      toast.success("You liked this meal!", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
+      return;
     }
+
+    if (likedMeals.includes(mealId)) {
+      toast.info("You have already liked this meal.", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+      return;
+    }
+
+    // Update liked meals
+    setLikedMeals((prev) => [...prev, mealId]);
+
+    // Update local like count
+    setMeals((prevMeals) =>
+      prevMeals.map((meal) =>
+        meal._id === mealId ? { ...meal, likes: meal.likes + 1 } : meal
+      )
+    );
+
+    toast.success("You liked the meal!", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+
+    // Optional: If you have backend support to update likes
+    // axios.patch(`${API_URL}/like/${mealId}`);
   };
 
   return (
@@ -72,20 +91,22 @@ function UpcomingMeals() {
                 <p className="text-sm text-gray-600 mt-2">Likes: {meal.likes}</p>
               </div>
 
-              {/* Like Button with Icon */}
+              {/* Like Button */}
               <button
                 onClick={() => handleLike(meal._id)}
-                className="mt-4 shadow-lg bg-gray-300 text-black py-2 px-4 justify-center rounded-full  transition flex items-center"
+                className={`mt-4 shadow-lg ${
+                  likedMeals.includes(meal._id) ? "bg-green-300" : "bg-gray-300"
+                } text-black py-2 px-4 justify-center rounded-full transition flex items-center`}
               >
                 <FaThumbsUp className="mr-2 text-blue-600" />
-                Like
+                {likedMeals.includes(meal._id) ? "Liked" : "Like"}
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Toast Container for showing alerts */}
+      {/* Toast Container */}
       <ToastContainer />
     </div>
   );
