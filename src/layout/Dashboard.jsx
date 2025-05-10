@@ -4,6 +4,7 @@ import SideBer from '../components/SideBer/SideBer';
 import { FiBell, FiSearch, FiUser, FiMenu, FiX } from 'react-icons/fi';
 
 function Dashboard() {
+  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {

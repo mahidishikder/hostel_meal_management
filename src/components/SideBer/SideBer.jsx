@@ -16,44 +16,21 @@ import { CgProfile } from 'react-icons/cg';
 import { AuthContext } from '../../provider/AuthProvider';
 
 const Sidebar = () => {
+  const isAdmin = true;
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
 
-  // Logout function
   const handleLogout = async () => {
     try {
-      await logout(); // logout process
-      navigate('/join'); // navigate to the join page
+      await logout();
+      navigate('/join');
     } catch (error) {
       console.error('Logout failed:', error);
     }
   };
 
-  // Admin nav items
-  const adminNavItems = [
-    { icon: <FiHome size={18} />, label: 'Dashboard', path: '/dashboard', end: true },
-    { icon: <CgProfile size={18} />, label: 'My Profile', path: '/dashboard/myProfile', end: true },
-    { icon: <CiSquareQuestion size={18} />, label: 'My Request Meals', path: '/dashboard/requestedMeals', end: true },
-    { icon: <MdOutlinePreview size={18} />, label: 'My Reviews', path: '/dashboard/myReviews', end: true },
-    { icon: <MdOutlinePayments size={18} />, label: 'Payment History', path: '/dashboard/paymentHistory', end: true },
-    { icon: <FiUsers size={18} />, label: 'Manage Users', path: '/dashboard/users' },
-    { icon: <FiPlus size={18} />, label: 'Add Meal', path: '/dashboard/addMeal' },
-    { icon: <MdManageAccounts size={18} />, label: 'Manage Meals', path: '/dashboard/manageMeals' },
-    { icon: <FiPlus size={18} />, label: 'Add Upcoming', path: '/dashboard/addUpcomming' },
-    { icon: <MdManageAccounts size={18} />, label: 'Manage Upcoming', path: '/dashboard/manageUpcomming' },
-    { icon: <MdOutlinePreview size={18} />, label: 'All Review', path: '/dashboard/allReview' },
-  ];
-
-  // Main nav items
-  const mainNavItems = [
-    { icon: <FiHome size={18} />, label: 'Home', path: '/' },
-    { icon: <FiFileText size={18} />, label: 'Meals', path: '/meals' },
-    { icon: <FiCalendar size={18} />, label: 'Upcoming', path: '/upcoming-meals' },
-  ];
-
   return (
     <div className="h-screen flex flex-col px-4 py-6 bg-gradient-to-b from-orange-600 to-orange-700 shadow-xl overflow-y-auto">
-      
       {/* Logo */}
       <div className="mb-8 px-2">
         <h1 className="text-2xl font-bold tracking-wide text-white">
@@ -77,32 +54,71 @@ const Sidebar = () => {
         <FiChevronRight className="text-orange-200 text-sm" />
       </div>
 
-      {/* Admin Navigation */}
+      {/* Navigation Links */}
       <nav className="flex-1 space-y-1">
-        {adminNavItems.map((item, index) => (
-          <NavLink
-            key={`admin-${index}`}
-            to={item.path}
-            end={item.end || false}
-            className={({ isActive }) =>
-              `group flex items-center justify-between space-x-2 p-2.5 rounded-lg text-sm transition-all duration-200 ${
-                isActive
-                  ? 'bg-white text-orange-600 font-semibold shadow'
-                  : 'text-orange-100 hover:bg-orange-500 hover:bg-opacity-30 hover:text-white'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <div className="flex items-center space-x-2 overflow-hidden">
-                  <span>{item.icon}</span>
-                  <span className="truncate max-w-[120px]">{item.label}</span>
-                </div>
-                {isActive && <FiChevronRight className="text-orange-400" />}
-              </>
-            )}
-          </NavLink>
-        ))}
+        {/* Admin Navigation */}
+        {
+          isAdmin ? 
+          
+          <>
+
+            
+        <NavLink to="/dashboard" end className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<FiHome size={18} />, 'Dashboard')}
+        </NavLink>
+        <NavLink to="/dashboard/myProfile" end className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<CgProfile size={18} />, 'My Profile')}
+        </NavLink>
+        <NavLink to="/dashboard/requestedMeals" end className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<CiSquareQuestion size={18} />, 'My Request Meals')}
+        </NavLink>
+        <NavLink to="/dashboard/myReviews" end className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<MdOutlinePreview size={18} />, 'My Reviews')}
+        </NavLink>
+        <NavLink to="/dashboard/paymentHistory" end className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<MdOutlinePayments size={18} />, 'Payment History')}
+        </NavLink>
+        <NavLink to="/dashboard/users" className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<FiUsers size={18} />, 'Manage Users')}
+        </NavLink>
+        <NavLink to="/dashboard/addMeal" className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<FiPlus size={18} />, 'Add Meal')}
+        </NavLink>
+        <NavLink to="/dashboard/manageMeals" className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<MdManageAccounts size={18} />, 'Manage Meals')}
+        </NavLink>
+        <NavLink to="/dashboard/addUpcomming" className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<FiPlus size={18} />, 'Add Upcoming')}
+        </NavLink>
+        <NavLink to="/dashboard/manageUpcomming" className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<MdManageAccounts size={18} />, 'Manage Upcoming')}
+        </NavLink>
+        <NavLink to="/dashboard/allReview" className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<MdOutlinePreview size={18} />, 'All Review')}
+        </NavLink>
+          
+          </> 
+          :
+           <>
+            <NavLink to="/dashboard" end className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<FiHome size={18} />, 'Dashboard')}
+        </NavLink>
+        <NavLink to="/dashboard/myProfile" end className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<CgProfile size={18} />, 'My Profile')}
+        </NavLink>
+        <NavLink to="/dashboard/requestedMeals" end className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<CiSquareQuestion size={18} />, 'My Request Meals')}
+        </NavLink>
+        <NavLink to="/dashboard/myReviews" end className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<MdOutlinePreview size={18} />, 'My Reviews')}
+        </NavLink>
+        <NavLink to="/dashboard/paymentHistory" end className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<MdOutlinePayments size={18} />, 'Payment History')}
+        </NavLink>
+           </>
+        }
+
+      
 
         {/* Divider */}
         <div className="pt-5 pb-2">
@@ -117,29 +133,15 @@ const Sidebar = () => {
         </div>
 
         {/* Main Navigation */}
-        {mainNavItems.map((item, index) => (
-          <NavLink
-            key={`main-${index}`}
-            to={item.path}
-            className={({ isActive }) =>
-              `group flex items-center justify-between space-x-2 p-2.5 rounded-lg text-sm transition-all duration-200 ${
-                isActive
-                  ? 'bg-white text-orange-600 font-semibold shadow'
-                  : 'text-orange-100 hover:bg-orange-500 hover:bg-opacity-30 hover:text-white'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <div className="flex items-center space-x-2 overflow-hidden">
-                  <span>{item.icon}</span>
-                  <span className="truncate max-w-[120px]">{item.label}</span>
-                </div>
-                {isActive && <FiChevronRight className="text-orange-400" />}
-              </>
-            )}
-          </NavLink>
-        ))}
+        <NavLink to="/" className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<FiHome size={18} />, 'Home')}
+        </NavLink>
+        <NavLink to="/meals" className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<FiFileText size={18} />, 'Meals')}
+        </NavLink>
+        <NavLink to="/upcoming-meals" className={({ isActive }) => isActiveStyle(isActive)}>
+          {navLinkContent(<FiCalendar size={18} />, 'Upcoming')}
+        </NavLink>
       </nav>
 
       {/* Logout Button */}
@@ -155,5 +157,24 @@ const Sidebar = () => {
     </div>
   );
 };
+
+// Reusable style function
+const isActiveStyle = (isActive) =>
+  `group flex items-center justify-between space-x-2 p-2.5 rounded-lg text-sm transition-all duration-200 ${
+    isActive
+      ? 'bg-white text-orange-600 font-semibold shadow'
+      : 'text-orange-100 hover:bg-orange-500 hover:bg-opacity-30 hover:text-white'
+  }`;
+
+// Reusable content function
+const navLinkContent = (icon, label) => (
+  <>
+    <div className="flex items-center space-x-2 overflow-hidden">
+      <span>{icon}</span>
+      <span className="truncate max-w-[120px]">{label}</span>
+    </div>
+    <FiChevronRight className="text-orange-400" />
+  </>
+);
 
 export default Sidebar;
