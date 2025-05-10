@@ -23,6 +23,8 @@ import RequestedMeals from "../pages/RequestedMeals/RequestedMeals";
 import MyReviews from "../pages/MyReviews/MyReviews";
 import PaymentHistory from "../pages/PaymentHistory/PaymentHistory";
 import AllRevies from "../pages/AllReview/AllRevies";
+import Contact from "../pages/Contact/Contact";
+import PrivateRoute from "../provider/PrivateRoute";
 
 
   export const router = createBrowserRouter([
@@ -48,12 +50,16 @@ import AllRevies from "../pages/AllReview/AllRevies";
             path:'/join'
         },
         {
-          element:<MealsDetails></MealsDetails>,
+          element:<PrivateRoute><MealsDetails></MealsDetails></PrivateRoute>,
           path:'/mealsDetails/:id'
         },
         {
           element:<Register></Register>,
           path:'/register'
+        },
+        {
+          element:<Contact></Contact>,
+          path:'/contact'
         },
         
       ]

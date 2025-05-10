@@ -26,6 +26,7 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Meals", path: "/meals" },
     { name: "Upcoming Meals", path: "/upcoming-meals" },
+    { name: "Contact", path: "/contact" },
   ];
 
   const handleMenuItemClick = () => {

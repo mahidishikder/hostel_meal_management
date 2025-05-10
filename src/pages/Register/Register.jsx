@@ -1,71 +1,90 @@
 import React, { useContext, useState } from "react";
 import { updateProfile } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../provider/AuthProvider";
-import { FaGoogle, FaFacebook, FaTwitter } from "react-icons/fa";
+import SocialLogin from "../../components/SocialLogin/SocialLogin";
 
 const Register = () => {
-  const { createUser, loginUser, googleLogin } = useContext(AuthContext);
+  const { createUser, loginUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setIsLoading(true);
 
     const form = e.target;
     const name = form.name.value;
-    const photo = form.photo.value;
+    const photo = form.photo.value || "https://i.ibb.co/YBQgd3J/default-avatar.png";
     const email = form.email.value;
     const password = form.password.value;
 
+    // Password validation
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
+      setIsLoading(false);
       return;
     }
 
-    // Step 1: Create User
-    createUser(email, password)
-      .then((result) => {
-        const newUser = result.user;
-
-        // Step 2: Update Profile with Name and Photo
-        updateProfile(newUser, {
-          displayName: name,
-          photoURL: photo || "https://i.ibb.co/YBQgd3J/default-avatar.png",
-        })
-          .then(() => {
-            setSuccess("Registration successful!");
-
-            // Step 3: Log the user in right after successful registration
-            loginUser(email, password)
-              .then(() => {
-                navigate("/"); // Redirect to home or wherever you want
-              })
-              .catch((err) => {
-                setError("Login failed after registration.");
-                console.error(err);
-              });
-          })
-          .catch((error) => {
-            setError("Profile update failed: " + error.message);
-          });
-      })
-      .catch((error) => {
-        setError(error.message);
-      });
-  };
-
-  const handleGoogleLogin = async () => {
     try {
-      await googleLogin(); // Trigger Google login
-      navigate("/"); // Redirect to home or dashboard after successful login
+      // Create Firebase user
+      const result = await createUser(email, password);
+      const newUser = result.user;
+
+      // Update Firebase user profile
+      await updateProfile(newUser, {
+        displayName: name,
+        photoURL: photo,
+      });
+
+      // Prepare user data to send to the backend
+      const saveUser = {
+        name: name,
+        email: email,
+        photo: photo,
+        role: "student",        // Default role
+        badge: "Bronze",        // Default badge
+        createdAt: new Date()   // Registration time
+      };
+
+      console.log("Sending user data to backend:", saveUser); // Debug log
+
+      // Send user data to the backend
+      const response = await fetch("http://localhost:3000/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(saveUser),
+      });
+
+      // Check if the user data was successfully saved
+      if (response.ok) {
+        setSuccess("Registration successful!");
+      } else {
+        throw new Error("Failed to save user data");
+      }
+
+      // Log the user in after registration
+      const loginResult = await loginUser(email, password);
+
+      if (loginResult.user) {
+        navigate(from, { replace: true });
+      } else {
+        setError("Login failed after registration.");
+      }
     } catch (err) {
-      setError("Google login failed. Please try again.");
-      console.error("Google login error:", err);
+      console.error("Error during registration:", err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -113,40 +132,26 @@ const Register = () => {
 
           <button
             type="submit"
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-md transition"
+            disabled={isLoading}
+            className={`w-full ${
+              isLoading ? "bg-orange-400 cursor-not-allowed" : "bg-orange-600 hover:bg-orange-700"
+            } text-white py-2 rounded-md transition`}
           >
-            Register
+            {isLoading ? "Registering..." : "Register"}
           </button>
 
           {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
           {success && <p className="text-green-500 mt-2 text-sm">{success}</p>}
         </form>
 
-        {/* Social Login Buttons */}
-        <div className="flex justify-center gap-4 mt-6">
-          <button
-            onClick={handleGoogleLogin}
-            className="p-3 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition"
-          >
-            <FaGoogle size={24} />
-          </button>
-          <button
-            className="p-3 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
-          >
-            <FaFacebook size={24} />
-          </button>
-          <button
-            className="p-3 rounded-full bg-cyan-100 text-cyan-600 hover:bg-cyan-200 transition"
-          >
-            <FaTwitter size={24} />
-          </button>
-        </div>
+        {/* Social login buttons */}
+        <SocialLogin isLoading={isLoading} setError={setError} />
 
         <p className="text-center text-gray-600 text-sm mt-4">
           Already have an account?{" "}
-          <a href="/join" className="text-orange-600 hover:underline">
+          <Link to="/join" className="text-orange-600 hover:underline">
             Join here
-          </a>
+          </Link>
         </p>
       </div>
     </div>

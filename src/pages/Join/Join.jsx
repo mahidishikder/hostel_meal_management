@@ -1,15 +1,22 @@
 import React, { useContext, useState } from "react";
-import { FaGoogle, FaFacebook, FaTwitter, FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../provider/AuthProvider";
 import { useForm } from "react-hook-form";
+import SocialLogin from "../../components/SocialLogin/SocialLogin";
+
 
 const Join = () => {
-  const { loginUser, googleLogin } = useContext(AuthContext);
+  const { loginUser } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+  console.log(from)
+  console.log(location)
+
 
   const {
     register,
@@ -20,12 +27,11 @@ const Join = () => {
   const onSubmit = async (data) => {
     setError(null);
     setIsLoading(true);
-
     try {
       await loginUser(data.email, data.password)
         .then((user) => {
           console.log("User logged in:", user);
-          navigate("/");
+          navigate(from, { replace: true });
         })
         .catch((err) => {
           setError(err.message || "Login failed. Please try again.");
@@ -38,38 +44,9 @@ const Join = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    try {
-      await googleLogin();
-      navigate("/");
-    } catch (err) {
-      setError(err.message || "Google login failed. Please try again.");
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-around min-h-screen">
-        {/* Left Side - Image */}
-        <div className="hidden md:flex md:w-1/2 items-center justify-center p-4 lg:p-8">
-          <div className="max-w-md transform hover:scale-[1.02] transition-transform duration-300">
-            <img 
-              src="https://i.ibb.co.com/rR2rgSwK/security-access-card-abstract-concept-illustration-335657-3719-removebg-preview.png"
-              alt="Secure login illustration" 
-              className="w-full h-auto drop-shadow-lg"
-            />
-            <div className="mt-6 text-center">
-              <h2 className="text-3xl font-bold text-gray-800">Welcome Back!</h2>
-              <p className="text-gray-600 mt-2">
-                Join our community and discover delicious recipes tailored just for you.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side - Login Form */}
         <div className="w-full md:w-1/2 flex items-center justify-center p-4 sm:p-8">
           <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 sm:p-8 space-y-6 transition-all duration-300 hover:shadow-2xl">
             <div className="text-center">
@@ -77,14 +54,13 @@ const Join = () => {
               <p className="text-gray-600">Sign in to access your personalized recipes</p>
             </div>
 
-            {/* Login Form */}
             <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
               <div>
                 <label className="block text-gray-700 text-sm font-medium mb-1">Email</label>
                 <input
                   type="email"
                   placeholder="your@email.com"
-                  {...register("email", { 
+                  {...register("email", {
                     required: "Email is required",
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -97,13 +73,13 @@ const Join = () => {
                   <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
                 )}
               </div>
-              
+
               <div className="relative">
                 <label className="block text-gray-700 text-sm font-medium mb-1">Password</label>
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  {...register("password", { 
+                  {...register("password", {
                     required: "Password is required",
                     minLength: {
                       value: 6,
@@ -149,29 +125,22 @@ const Join = () => {
                 }`}
               >
                 {isLoading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span className="loading loading-ring loading-xl"></span>
-
-
-                  </>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                 ) : (
                   "Login"
                 )}
               </button>
             </form>
 
-            {/* Error Message */}
             {error && (
               <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm text-center">
                 {error}
               </div>
             )}
 
-            {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
@@ -181,36 +150,13 @@ const Join = () => {
               </div>
             </div>
 
-            {/* Social Login */}
-            <div className="grid grid-cols-3 gap-4">
-              <button
-                onClick={handleGoogleLogin}
-                disabled={isLoading}
-                className="p-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center justify-center"
-                aria-label="Login with Google"
-              >
-                <FaGoogle className="text-red-500 text-xl" />
-              </button>
-              <button 
-                disabled={isLoading}
-                className="p-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center justify-center"
-                aria-label="Login with Facebook"
-              >
-                <FaFacebook className="text-blue-600 text-xl" />
-              </button>
-              <button 
-                disabled={isLoading}
-                className="p-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center justify-center"
-                aria-label="Login with Twitter"
-              >
-                <FaTwitter className="text-cyan-500 text-xl" />
-              </button>
-            </div>
+            {/* Social login buttons */}
+            <SocialLogin isLoading={isLoading} setError={setError} />
 
             <p className="text-center text-gray-600 text-sm">
               Don't have an account?{" "}
-              <Link 
-                to="/register" 
+              <Link
+                to="/register"
                 className="text-orange-500 hover:underline font-medium transition"
               >
                 Create account
