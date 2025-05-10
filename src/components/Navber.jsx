@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FaBell } from "react-icons/fa";
 import { useContext, useState } from "react";
 import { HiMenuAlt3, HiX } from "react-icons/hi";
@@ -6,11 +6,21 @@ import { SiFoodpanda } from "react-icons/si";
 import { AuthContext } from "../provider/AuthProvider";
 import { RiNotificationSnoozeFill } from "react-icons/ri";
 
-
 const Navbar = () => {
-  const { user, logout } = useContext(AuthContext); // AuthContext থেকে ইউজার স্টেট নেওয়া
+  const { user, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate(); // ✅ useNavigate added here
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setShowModal(false);
+      navigate("/join"); // ✅ navigate to /join after logout
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   const navItems = [
     { name: "Home", path: "/" },
@@ -26,16 +36,11 @@ const Navbar = () => {
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 lg:py-5 py-3 flex justify-between items-center">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="text-2xl lg:text-3xl font-bold text-orange-500 flex items-center gap-2"
-        >
+        <Link to="/" className="text-2xl lg:text-3xl font-bold text-orange-500 flex items-center gap-2">
           <img className="w-10" src="https://i.ibb.co.com/HpGH7h4B/Green-Beige-Circle-Healthy-Food-Logo-modified.png" alt="" />
           <span className="text-black">MealMate</span>
         </Link>
 
-        {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
           {navItems.map((item) => (
             <NavLink
@@ -51,45 +56,32 @@ const Navbar = () => {
             </NavLink>
           ))}
 
-          <RiNotificationSnoozeFill
-          className="text-xl text-gray-600 hover:text-orange-500 cursor-pointer" />
+          <RiNotificationSnoozeFill className="text-xl text-gray-600 hover:text-orange-500 cursor-pointer" />
 
-          {/* User image with dropdown */}
           {user?.photoURL ? (
             <div className="relative">
               <img
                 src={user.photoURL}
                 alt="User"
-                className="lg:w-10 lg:h-10 w-9 h-9 ring-1 bg-gray-200 shadow  shadow-black ring-gray-100 p-1 rounded-full object-cover border-2 border-gray-200  hover:shadow-lg transition-all duration-300 cursor-pointer"
+                className="lg:w-10 lg:h-10 w-9 h-9 ring-1 bg-gray-200 shadow shadow-black ring-gray-100 p-1 rounded-full object-cover border-2 border-gray-200 hover:shadow-lg transition-all duration-300 cursor-pointer"
                 onClick={() => setShowModal(!showModal)}
               />
               {showModal && (
                 <div className="absolute right-0 top-10 bg-white shadow-md border rounded w-48 z-50">
                   <ul className="py-2 text-sm text-gray-700">
                     <li>
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 hover:bg-orange-100"
-                        onClick={handleMenuItemClick}
-                      >
+                      <Link to="/profile" className="block px-4 py-2 hover:bg-orange-100" onClick={handleMenuItemClick}>
                         My Profile
                       </Link>
                     </li>
                     <li>
-                      <Link
-                        to="/dashboard"
-                        className="block px-4 py-2 hover:bg-orange-100"
-                        onClick={handleMenuItemClick}
-                      >
+                      <Link to="/dashboard" className="block px-4 py-2 hover:bg-orange-100" onClick={handleMenuItemClick}>
                         Dashboard
                       </Link>
                     </li>
                     <li>
                       <button
-                        onClick={() => {
-                          logout();
-                          setShowModal(false);
-                        }}
+                        onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 hover:bg-orange-100 text-red-500"
                       >
                         Logout
@@ -100,16 +92,12 @@ const Navbar = () => {
               )}
             </div>
           ) : (
-            <Link
-              to="/join"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition text-sm"
-            >
+            <Link to="/join" className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition text-sm">
               Join Us
             </Link>
           )}
         </div>
 
-        {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center gap-2 relative">
           {user?.photoURL ? (
             <>
@@ -123,20 +111,12 @@ const Navbar = () => {
                 <div className="absolute right-12 top-10 bg-white shadow-md border rounded w-48 z-50">
                   <ul className="py-2 text-sm text-gray-700">
                     <li>
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 hover:bg-orange-100"
-                        onClick={handleMenuItemClick}
-                      >
+                      <Link to="/profile" className="block px-4 py-2 hover:bg-orange-100" onClick={handleMenuItemClick}>
                         My Profile
                       </Link>
                     </li>
                     <li>
-                      <Link
-                        to="/dashboard"
-                        className="block px-4 py-2 hover:bg-orange-100"
-                        onClick={handleMenuItemClick}
-                      >
+                      <Link to="/dashboard" className="block px-4 py-2 hover:bg-orange-100" onClick={handleMenuItemClick}>
                         Dashboard
                       </Link>
                     </li>
@@ -145,6 +125,7 @@ const Navbar = () => {
                         onClick={() => {
                           logout();
                           setShowModal(false);
+                          navigate("/join"); // ✅ same fix added here too
                         }}
                         className="block w-full text-left px-4 py-2 hover:bg-orange-100 text-red-500"
                       >
@@ -156,10 +137,7 @@ const Navbar = () => {
               )}
             </>
           ) : (
-            <Link
-              to="/join"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm"
-            >
+            <Link to="/join" className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm">
               Join Us
             </Link>
           )}
@@ -174,14 +152,10 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
       {menuOpen && (
         <div className="md:hidden px-4 pb-4 space-y-3 bg-white shadow-sm">
           <div className="flex flex-col items-center justify-between">
-            <Link
-              to="/"
-              className="text-xl font-bold text-orange-500 flex items-center gap-2"
-            >
+            <Link to="/" className="text-xl font-bold text-orange-500 flex items-center gap-2">
               <SiFoodpanda />
               <span>MealMate</span>
             </Link>

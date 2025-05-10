@@ -17,6 +17,12 @@ import Chart from "../pages/Chart/Chart";
 import ManageMeals from "../pages/ManageMeals/ManageMeals";
 import ManageUpcomming from "../pages/ManageUpcomming/ManageUpcomming";
 import UserProfile from "../pages/UserProfile/UserProfile";
+import UpdateUpcomming from "../pages/UpdateUpcomming/UpdateUpcomming";
+import UpdateMeals from "../pages/UpdateMeals/UpdateMeals";
+import RequestedMeals from "../pages/RequestedMeals/RequestedMeals";
+import MyReviews from "../pages/MyReviews/MyReviews";
+import PaymentHistory from "../pages/PaymentHistory/PaymentHistory";
+import AllRevies from "../pages/AllReview/AllRevies";
 
 
   export const router = createBrowserRouter([
@@ -84,8 +90,36 @@ import UserProfile from "../pages/UserProfile/UserProfile";
         },
         {
           element:<UserProfile></UserProfile>,
-          path:'userProfile'
+          path:'myProfile'
         },
+        {
+          path: 'upcoming/update/:id',
+          element: <UpdateUpcomming />
+        },
+        {
+          path: 'meal/update/:id',
+          element: <UpdateMeals />
+        },
+        {
+          path: 'allReview',
+          element: <AllRevies />
+        },
+        {
+          path: 'requestedMeals',
+          element: <RequestedMeals />
+        },
+        {
+          path: 'myReviews',
+          element: <MyReviews />
+        },
+        {
+          path: 'paymentHistory',
+          element: <PaymentHistory />
+        },
+
+        
+        
+        
 
       
     ]

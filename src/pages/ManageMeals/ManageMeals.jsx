@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
 function ManageMeals() {
   const [meals, setMeals] = useState([]);
@@ -57,9 +58,9 @@ function ManageMeals() {
                 <td>${meal.price}</td>
                 <td>
                   <div className="flex gap-3">
-                    <button className="text-blue-500 hover:text-blue-700">
+                    <Link to={`/dashboard/meal/update/${meal._id}`} className="text-blue-500 hover:text-blue-700">
                       <FiEdit size={18} />
-                    </button>
+                    </Link>
                     <button onClick={() => handleDelete(meal._id)} className="text-red-500 hover:text-red-700">
                       <FiTrash2 size={18} />
                     </button>

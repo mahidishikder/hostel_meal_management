@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import { Link, useNavigate } from 'react-router-dom';
 
 function ManageUpcomming() {
   const [meals, setMeals] = useState([]);
+
 
   useEffect(() => {
     fetch('http://localhost:3000/upcoming')
@@ -12,14 +14,28 @@ function ManageUpcomming() {
   }, []);
 
   const handleDelete = (id) => {
-    // Delete logic will go here
-    console.log('Delete:', id);
+    const confirmDelete = window.confirm('Are you sure you want to delete this item?');
+    if (!confirmDelete) return;
+
+    fetch(`http://localhost:3000/upcoming/${id}`, {
+      method: 'DELETE',
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.deletedCount > 0) {
+          alert('Meal deleted successfully!');
+          const remaining = meals.filter(meal => meal._id !== id);
+          setMeals(remaining);
+        } else {
+          alert('Failed to delete.');
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting:', error);
+        alert('An error occurred.');
+      });
   };
 
-  const handleUpdate = (id) => {
-    // Update logic will go here
-    console.log('Update:', id);
-  };
 
   return (
     <div className="p-6">
@@ -48,13 +64,15 @@ function ManageUpcomming() {
                 <td className="py-3 px-4">{new Date(meal.publishDate).toLocaleDateString()}</td>
                 <td className="py-3 px-4">{meal.likes}</td>
                 <td className="py-3 px-4 text-center space-x-2">
-                  <button
-                    onClick={() => handleUpdate(meal._id)}
-                    className="text-blue-600 hover:text-blue-800"
-                    title="Edit"
-                  >
-                    <FiEdit size={18} />
-                  </button>
+                <Link to={`/dashboard/upcoming/update/${meal._id}`}>
+  <button
+    className="text-blue-600 hover:text-blue-800"
+    title="Edit"
+  >
+    <FiEdit size={18} />
+  </button>
+</Link>
+
                   <button
                     onClick={() => handleDelete(meal._id)}
                     className="text-red-600 hover:text-red-800"

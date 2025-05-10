@@ -1,14 +1,22 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../../provider/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 function UserProfile() {
-  const { user } = useContext(AuthContext);
+  
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate(); // for redirecting after logout
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleLogout = () => {
-    // Logic for logout (adjust as needed)
-    console.log("Logging out...");
+  const handleLogout = async () => {
+    try {
+      await logout(); // call logout function from context
+      console.log("Logout successful");
+      navigate("/join"); // redirect to login page (change if needed)
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const openModal = () => {
