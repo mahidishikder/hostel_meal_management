@@ -14,9 +14,15 @@ import { CiSquareQuestion } from 'react-icons/ci';
 import { CgProfile } from 'react-icons/cg';
 
 import { AuthContext } from '../../provider/AuthProvider';
+import useAxiosPublic from '../../hooks/useAxiosPublic';
+import useAdmin from '../../hooks/useAdmin';
 
 const Sidebar = () => {
-  const isAdmin = true;
+  const axiosPublic = useAxiosPublic()
+  console.log(axiosPublic)
+  const [isAdmin] = useAdmin()
+  console.log(isAdmin)
+  // const isAdmin = true;
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
 

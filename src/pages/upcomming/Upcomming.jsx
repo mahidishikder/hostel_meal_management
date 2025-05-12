@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
+import useUpcoming from '../../hooks/useUpcoming';
 
 function Upcomming() {
+  const [upcomingCard, refetch] = useUpcoming();
   const [formData, setFormData] = useState({
     name: '',
     image: '',
@@ -48,6 +50,7 @@ function Upcomming() {
           likes: '',
           likedByPremiumUser: false
         });
+        refetch(); // নতুন ডেটা পেলে reload করবে
       } else {
         Swal.fire('Error', 'Failed to submit the meal.', 'error');
       }
@@ -58,68 +61,45 @@ function Upcomming() {
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto bg-white shadow-md rounded-md">
-      <h2 className="text-xl font-semibold mb-4">Add Upcoming Meal</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          placeholder="Meal Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="text"
-          name="image"
-          placeholder="Image URL"
-          value={formData.image}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="datetime-local"
-          name="publishDate"
-          value={formData.publishDate}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="number"
-          name="likes"
-          placeholder="Likes"
-          value={formData.likes}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
+    <div className="p-4 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-orange-600">Add Upcoming Meal</h2>
+      
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-4 bg-white shadow-md p-6 rounded mb-10">
+        <input type="text" name="name" placeholder="Meal Name" value={formData.name} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <input type="text" name="image" placeholder="Image URL" value={formData.image} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <input type="datetime-local" name="publishDate" value={formData.publishDate} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <input type="number" name="likes" placeholder="Likes" value={formData.likes} onChange={handleChange} className="w-full p-2 border rounded" required />
         <label className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            name="likedByPremiumUser"
-            checked={formData.likedByPremiumUser}
-            onChange={handleChange}
-          />
+          <input type="checkbox" name="likedByPremiumUser" checked={formData.likedByPremiumUser} onChange={handleChange} />
           <span>Liked by Premium User</span>
         </label>
-        <button
-          type="submit"
-          className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
-        >
+        <button type="submit" className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">
           Submit
         </button>
       </form>
+
+      {/* Show Upcoming Cards */}
+      <h2 className="text-2xl font-bold mb-4 text-orange-600">Upcoming Meals</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {upcomingCard?.length === 0 ? (
+          <p className="text-gray-500">No upcoming meals found.</p>
+        ) : (
+          upcomingCard.map((item) => (
+            <div key={item._id} className="card shadow-lg p-4 border border-orange-100 rounded-md">
+              <img src={item.image} alt={item.name} className="w-full h-48 object-cover rounded-md mb-3" />
+              <h3 className="text-xl font-semibold text-gray-800">{item.name}</h3>
+              <p className="text-gray-600 text-sm mt-1 mb-2">{item.description}</p>
+              <div className="text-sm text-gray-500 mb-1">Publish: {new Date(item.publishDate).toLocaleString()}</div>
+              <div className="flex gap-2 text-sm">
+                <span className="badge bg-orange-500 text-white">👍 {item.likes}</span>
+                {item.likedByPremiumUser && <span className="badge bg-yellow-500 text-white">Premium ❤️</span>}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }

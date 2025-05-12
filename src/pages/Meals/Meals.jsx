@@ -1,29 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import useMealsCard from '../../hooks/useMealsCard';
 
 function Meals() {
-  const [meals, setMeals] = useState([]);
-  const [filteredMeals, setFilteredMeals] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  useEffect(() => {
-    fetch("http://localhost:3000/meals")
-      .then(res => res.json())
-      .then(data => {
-        setMeals(data);
-        setFilteredMeals(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to load meals:", err);
-        setLoading(false);
-      });
-  }, []);
+  const [mealsCard, refetch] = useMealsCard();
+  const [filteredMeals, setFilteredMeals] = useState([]);
 
   useEffect(() => {
-    let updatedMeals = meals;
+    let updatedMeals = mealsCard;
 
     // Filter by search term
     if (searchTerm) {
@@ -40,11 +27,11 @@ function Meals() {
     }
 
     setFilteredMeals(updatedMeals);
-  }, [searchTerm, selectedCategory, meals]);
+  }, [searchTerm, selectedCategory, mealsCard]);
 
-  const categories = ["All", ...new Set(meals.map(meal => meal.category))];
+  const categories = ["All", ...new Set(mealsCard.map(meal => meal.category))];
 
-  if (loading) {
+  if (!mealsCard || mealsCard.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen">
         <span className="loading loading-spinner loading-lg text-orange-500"></span>
@@ -60,31 +47,30 @@ function Meals() {
 
       {/* 🔍 Search and Category Filter */}
       <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-  {/* Search Input */}
-  <div className="w-full md:w-[65%]">
-    <input
-      type="text"
-      placeholder="🔍 Search meals..."
-      className="input input-bordered w-full px-4 py-2 rounded-full ring-1 ring-orange-300 text-base focus:outline-none focus:ring-2 focus:ring-orange-500"
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-    />
-  </div>
+        {/* Search Input */}
+        <div className="w-full md:w-[65%]">
+          <input
+            type="text"
+            placeholder="🔍 Search meals..."
+            className="input input-bordered w-full px-4 py-2 rounded-full ring-1 ring-orange-300 text-base focus:outline-none focus:ring-2 focus:ring-orange-500"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
-  {/* Category Dropdown */}
-  <div className="w-full md:w-[35%]">
-    <select
-      className="select select-bordered w-full px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-orange-500"
-      value={selectedCategory}
-      onChange={(e) => setSelectedCategory(e.target.value)}
-    >
-      {categories.map((cat, i) => (
-        <option key={i} value={cat}>{cat}</option>
-      ))}
-    </select>
-  </div>
-</div>
-
+        {/* Category Dropdown */}
+        <div className="w-full md:w-[35%]">
+          <select
+            className="select select-bordered w-full px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-orange-500"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            {categories.map((cat, i) => (
+              <option key={i} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {/* 🧾 Meals Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

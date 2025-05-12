@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import useAxiosPublic from '../../hooks/useAxiosPublic';
 
 const MealsAdd = () => {
+  const axiosPublic = useAxiosPublic();
   const [mealData, setMealData] = useState({
     title: '',
     category: '',
@@ -33,7 +35,7 @@ const MealsAdd = () => {
     setIngredients(updated);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const mealToSend = {
@@ -47,36 +49,26 @@ const MealsAdd = () => {
       reviews: []
     };
 
-    console.log('Submitting Meal:', mealToSend);
+    try {
+      const response = await axiosPublic.post('/meals', mealToSend);
+      console.log('Success:', response.data);
 
-    fetch('http://localhost:3000/meals', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(mealToSend)
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log('Success:', data);
-        
-        setMealData({
-          title: '',
-          category: '',
-          image: '',
-          price: '',
-          rating: '',
-          description: '',
-          calories: '',
-          distributorName: '',
-        });
-       
-        setIngredients([]);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to add meal.');
+      // Reset form
+      setMealData({
+        title: '',
+        category: '',
+        image: '',
+        price: '',
+        rating: '',
+        description: '',
+        calories: '',
+        distributorName: '',
       });
+      setIngredients([]);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to add meal.');
+    }
   };
 
   return (
@@ -91,7 +83,6 @@ const MealsAdd = () => {
           <option value="Lunch">Lunch</option>
           <option value="Dinner">Dinner</option>
         </select>
-       
 
         <input type="text" name="image" placeholder="Image URL" onChange={handleChange} value={mealData.image} className="w-full border border-orange-300 p-3 rounded focus:outline-[#FF6900]" required />
         <input type="number" name="price" placeholder="Price" onChange={handleChange} value={mealData.price} className="w-full border border-orange-300 p-3 rounded focus:outline-[#FF6900]" required />

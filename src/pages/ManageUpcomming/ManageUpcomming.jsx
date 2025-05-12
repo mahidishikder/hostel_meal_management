@@ -1,41 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import useUpcoming from '../../hooks/useUpcoming';
 
 function ManageUpcomming() {
-  const [meals, setMeals] = useState([]);
-
-
-  useEffect(() => {
-    fetch('http://localhost:3000/upcoming')
-      .then(res => res.json())
-      .then(data => setMeals(data))
-      .catch(err => console.error('Error fetching data:', err));
-  }, []);
+  const [upcomingCard, refetch] = useUpcoming();
 
   const handleDelete = (id) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this item?');
-    if (!confirmDelete) return;
-
-    fetch(`http://localhost:3000/upcoming/${id}`, {
-      method: 'DELETE',
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.deletedCount > 0) {
-          alert('Meal deleted successfully!');
-          const remaining = meals.filter(meal => meal._id !== id);
-          setMeals(remaining);
-        } else {
-          alert('Failed to delete.');
-        }
-      })
-      .catch(error => {
-        console.error('Error deleting:', error);
-        alert('An error occurred.');
-      });
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`http://localhost:3000/upcoming/${id}`, {
+          method: 'DELETE',
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.deletedCount > 0) {
+              Swal.fire('Deleted!', 'The meal has been deleted.', 'success');
+              refetch(); // নতুন করে ডেটা আনবে
+            } else {
+              Swal.fire('Failed!', 'Failed to delete the meal.', 'error');
+            }
+          })
+          .catch(error => {
+            console.error('Error deleting:', error);
+            Swal.fire('Error!', 'Something went wrong. Try again later.', 'error');
+          });
+      }
+    });
   };
-
 
   return (
     <div className="p-6">
@@ -54,7 +55,7 @@ function ManageUpcomming() {
             </tr>
           </thead>
           <tbody>
-            {meals.map((meal) => (
+            {upcomingCard.map((meal) => (
               <tr key={meal._id} className="border-b hover:bg-orange-50 transition">
                 <td className="py-3 px-4">
                   <img src={meal.image} alt={meal.name} className="w-14 h-14 object-cover rounded" />
@@ -64,15 +65,14 @@ function ManageUpcomming() {
                 <td className="py-3 px-4">{new Date(meal.publishDate).toLocaleDateString()}</td>
                 <td className="py-3 px-4">{meal.likes}</td>
                 <td className="py-3 px-4 text-center space-x-2">
-                <Link to={`/dashboard/upcoming/update/${meal._id}`}>
-  <button
-    className="text-blue-600 hover:text-blue-800"
-    title="Edit"
-  >
-    <FiEdit size={18} />
-  </button>
-</Link>
-
+                  <Link to={`/dashboard/upcoming/update/${meal._id}`}>
+                    <button
+                      className="text-blue-600 hover:text-blue-800"
+                      title="Edit"
+                    >
+                      <FiEdit size={18} />
+                    </button>
+                  </Link>
                   <button
                     onClick={() => handleDelete(meal._id)}
                     className="text-red-600 hover:text-red-800"
@@ -83,7 +83,7 @@ function ManageUpcomming() {
                 </td>
               </tr>
             ))}
-            {meals.length === 0 && (
+            {upcomingCard.length === 0 && (
               <tr>
                 <td colSpan="6" className="text-center py-4 text-gray-500">
                   No upcoming meals found.

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../../provider/AuthProvider';
 
 const packages = [
   {
@@ -54,64 +55,71 @@ const packages = [
 ];
 
 function Membership() {
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleRedirect = (pkg) => {
-    navigate(`/checkout/${pkg}`);
+    if (!user) {
+      // If the user is not logged in, redirect to the login page
+      navigate('/join');
+    } else {
+      // If the user is logged in, proceed to payment page
+      navigate('/payment', { state: pkg });
+    }
   };
 
   return (
-   <div className='bg-orange-50'>
-     <div className="py-16 px-4 max-w-7xl mx-auto">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-5xl font-bold text-orange-600 mb-4">
-          <span className='text-black'>Premium </span>Memberships
-        </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Experience luxury dining and accommodation with our exclusive packages
-        </p>
-      </div>
+    <div className='bg-orange-50'>
+      <div className="py-16 px-4 max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold text-orange-600 mb-4">
+            <span className='text-black'>Premium </span>Memberships
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+            Experience luxury dining and accommodation with our exclusive packages
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {packages.map((pkg) => (
-          <div
-            key={pkg.name}
-            className={`rounded-xl border-2 ${pkg.bg} ${pkg.border} ${pkg.text} flex flex-col transition-all duration-300 hover:shadow-xl
-              ${pkg.highlight ? 'transform md:scale-[1.05] shadow-lg' : ''}
-              overflow-hidden h-full`}
-          >
-            <div className="p-8 pb-6">
-              <h3 className="text-3xl font-bold mb-3">{pkg.name}</h3>
-              <p className="text-4xl font-extrabold mb-6">
-                ৳{pkg.price}
-                <span className="text-lg font-normal ml-1">/month</span>
-              </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {packages.map((pkg) => (
+            <div
+              key={pkg.name}
+              className={`rounded-xl border-2 ${pkg.bg} ${pkg.border} ${pkg.text} flex flex-col transition-all duration-300 hover:shadow-xl
+                ${pkg.highlight ? 'transform md:scale-[1.05] shadow-lg' : ''}
+                overflow-hidden h-full`}
+            >
+              <div className="p-8 pb-6">
+                <h3 className="text-3xl font-bold mb-3">{pkg.name}</h3>
+                <p className="text-4xl font-extrabold mb-6">
+                  ${pkg.price}
+                  <span className="text-lg font-normal ml-1">/month</span>
+                </p>
+                
+                <ul className="space-y-3 text-base">
+                  {pkg.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start">
+                      <svg className="w-5 h-5 mt-0.5 mr-2 flex-shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
               
-              <ul className="space-y-3 text-base">
-                {pkg.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start">
-                    <svg className="w-5 h-5 mt-0.5 mr-2 flex-shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-auto p-8 pt-0">
+                <button
+                  onClick={() => handleRedirect(pkg)} // Pass full package data here
+                  className={`w-full py-3 px-6 rounded-lg font-semibold text-lg transition ${pkg.buttonStyle}`}
+                >
+                  Select {pkg.name} Plan
+                </button>
+              </div>
             </div>
-            
-            <div className="mt-auto p-8 pt-0">
-              <button
-                onClick={() => handleRedirect(pkg.name.toLowerCase())}
-                className={`w-full py-3 px-6 rounded-lg font-semibold text-lg transition ${pkg.buttonStyle}`}
-              >
-                Select {pkg.name} Plan
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
-   </div>
   );
 }
 

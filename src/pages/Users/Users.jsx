@@ -1,64 +1,66 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Swal from 'sweetalert2';
-
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import useAxiosPublic from '../../hooks/useAxiosPublic';
 
 function Users() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const axiosPublic = useAxiosPublic();
+  const queryClient = useQueryClient();
 
-  // Fetch users
-  useEffect(() => {
-    fetch('http://localhost:3000/users')
-      .then((response) => response.json())
-      .then((data) => {
-        setUsers(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError('Failed to fetch user data');
-        setLoading(false);
-      });
-  }, []);
-
-  // Change role to admin
- // Change role to admin
-const handleRoleChange = (user) => {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: `Make ${user.name} an admin?`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, make admin!',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      fetch(`http://localhost:3000/users/admin/${user._id}`, {
-        method: 'PATCH',
+  // Fetch users with react-query
+  const { data: users = [], isLoading, isError } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
+      console.log("Fetching users..."); // Debugging console log
+      const res = await axiosPublic.get('/users', {
         headers: {
-          'Content-Type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('access-token')}`,
         },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.modifiedCount > 0) {
-            const updatedUsers = users.map((u) =>
-              u._id === user._id ? { ...u, role: 'admin' } : u
-            );
-            setUsers(updatedUsers);
-            Swal.fire('Success!', `${user.name} is now an admin.`, 'success');
-          }
-        })
-        .catch(() => {
-          Swal.fire('Error!', 'Failed to update user role', 'error');
-        });
-    }
+      });
+      console.log("Data received:", res.data); // Debugging console log
+      return res.data;
+    },
   });
-};
 
+  // Mutation: Make Admin
+  const makeAdminMutation = useMutation({
+    mutationFn: (userId) => axiosPublic.patch(`/users/admin/${userId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['users']);
+    },
+  });
 
-  // Delete user
+  const handleRoleChange = (user) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Make ${user.name} an admin?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, make admin!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        makeAdminMutation.mutate(user._id, {
+          onSuccess: () => {
+            Swal.fire('Success!', `${user.name} is now an admin.`, 'success');
+          },
+          onError: () => {
+            Swal.fire('Error!', 'Failed to update user role', 'error');
+          },
+        });
+      }
+    });
+  };
+
+  // Mutation: Delete User
+  const deleteMutation = useMutation({
+    mutationFn: (id) => axiosPublic.delete(`/users/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['users']);
+    },
+  });
+
   const handleDelete = (id) => {
     const userToDelete = users.find((user) => user._id === id);
     Swal.fire({
@@ -71,92 +73,67 @@ const handleRoleChange = (user) => {
       confirmButtonText: 'Yes, delete!',
     }).then((result) => {
       if (result.isConfirmed) {
-        fetch(`http://localhost:3000/users/${id}`, {
-          method: 'DELETE',
-        })
-          .then((response) => response.json())
-          .then(() => {
-            setUsers(users.filter((user) => user._id !== id));
+        deleteMutation.mutate(id, {
+          onSuccess: () => {
             Swal.fire('Deleted!', 'User has been deleted.', 'success');
-          })
-          .catch(() => {
+          },
+          onError: () => {
             Swal.fire('Error!', 'Failed to delete user', 'error');
-          });
+          },
+        });
       }
     });
   };
-  
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
+  if (isLoading) return <div className="text-center mt-10 text-lg">Loading...</div>;
+  if (isError) return <div className="text-center mt-10 text-red-500">Failed to fetch user data</div>;
 
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px' }}>
-      <h1 style={{ color: '#FF6F00' }}>User Management</h1>
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          marginTop: '20px',
-          textAlign: 'left',
-        }}
-      >
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Badge</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user._id} style={{ borderBottom: '1px solid #ddd' }}>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>
-              <td>
-  <button
-    onClick={() => handleRoleChange(user)}
-    className={`px-4 py-2 rounded text-white font-semibold ${
-      user.role === 'admin'
-        ? 'bg-gray-600 cursor-not-allowed'
-        : 'bg-orange-500 hover:bg-orange-600'
-    }`}
-    disabled={user.role === 'admin'}
-  >
-    {user.role === 'admin' ? 'Admin' : 'Student'}
-  </button>
-</td>
-
-              </td>
-              <td>{user.badge}</td>
-              <td>
-                <button
-                  onClick={() => handleDelete(user._id)}
-                  style={{
-                    backgroundColor: '#FF6F00',
-                    color: '#fff',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                    marginRight: '10px',
-                  }}
-                >
-                  Delete
-                </button>
-              </td>
+    <div className="p-4 md:p-8 font-sans">
+      <h1 className="text-2xl md:text-4xl font-bold text-orange-600 mb-6 text-center">User Management</h1>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-200 text-left">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-3">Name</th>
+              <th className="p-3">Email</th>
+              <th className="p-3">Role</th>
+              <th className="p-3">Badge</th>
+              <th className="p-3">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user._id} className="border-t">
+                <td className="p-3">{user.name}</td>
+                <td className="p-3">{user.email}</td>
+                <td className="p-3">
+                  <button
+                    onClick={() => handleRoleChange(user)}
+                    className={`px-4 py-2 rounded text-white font-semibold ${
+                      user.role === 'admin'
+                        ? 'bg-gray-600 cursor-not-allowed'
+                        : 'bg-orange-500 hover:bg-orange-600'
+                    }`}
+                    disabled={user.role === 'admin'}
+                  >
+                    {user.role === 'admin' ? 'Admin' : 'Student'}
+                  </button>
+                </td>
+                <td className="p-3">{user.badge}</td>
+                <td className="p-3">
+                  <button
+                    onClick={() => handleDelete(user._id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

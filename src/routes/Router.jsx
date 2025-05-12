@@ -25,6 +25,8 @@ import PaymentHistory from "../pages/PaymentHistory/PaymentHistory";
 import AllRevies from "../pages/AllReview/AllRevies";
 import Contact from "../pages/Contact/Contact";
 import PrivateRoute from "../provider/PrivateRoute";
+import Membership from "../pages/Home/membership/membership";
+import Payment from "../pages/Payment/Payment";
 
 
   export const router = createBrowserRouter([
@@ -44,6 +46,14 @@ import PrivateRoute from "../provider/PrivateRoute";
         {
             element:<UpcomingMeals></UpcomingMeals>,
             path:'/upcoming-meals'
+        },
+        {
+          element:<Membership></Membership>,
+          path:'/membership'
+        },
+        {
+          element:<Payment></Payment>,
+          path:'/payment'
         },
         {
             element:<Join></Join>,

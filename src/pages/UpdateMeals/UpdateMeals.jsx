@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2'; // SweetAlert2 ইম্পোর্ট করো
+import Swal from 'sweetalert2';
+import useMealsCard from '../../hooks/useMealsCard';
 
 const MealsEdit = () => {
+  const [mealsCard, refetch] = useMealsCard();
+
   const { id } = useParams();
   const navigate = useNavigate();
   const [mealData, setMealData] = useState(null);
@@ -10,13 +13,12 @@ const MealsEdit = () => {
   const [ingredients, setIngredients] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/meals/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        setMealData(data);
-        setIngredients(data.ingredients || []);
-      });
-  }, [id]);
+    const selectedMeal = mealsCard.find(meal => meal._id === id);
+    if (selectedMeal) {
+      setMealData(selectedMeal);
+      setIngredients(selectedMeal.ingredients || []);
+    }
+  }, [mealsCard, id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,7 +64,8 @@ const MealsEdit = () => {
           icon: 'success',
           confirmButtonText: 'OK',
         });
-        navigate('/manage-meals');
+        refetch(); // reload meals
+        navigate('/dashboard/manageMeals');
       })
       .catch(err => {
         console.error(err);

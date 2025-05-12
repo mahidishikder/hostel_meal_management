@@ -9,6 +9,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from "firebase/auth";
+import useAxiosPublic from "../hooks/useAxiosPublic";
 
 // Context তৈরি করছি
 export const AuthContext = createContext(null);
@@ -19,7 +20,7 @@ const auth = getAuth(app);
 function AuthProvider({ children }) {
   const [user, setUser] = useState(null); // ইউজার স্টেট
   const [loading, setLoading] = useState(true); // লোডিং স্টেট
-
+ const axiosPublic = useAxiosPublic()
   // নতুন ইউজার তৈরি করার ফাংশন
   const createUser = (email, password) => {
     setLoading(true);
@@ -48,7 +49,20 @@ function AuthProvider({ children }) {
   // ইউজার স্টেট চেঞ্জ মনিটর করার জন্য useEffect
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);  // ইউজার আপডেট
+      setUser(currentUser);
+      if(currentUser){
+        const userInfo = {email : currentUser.email}
+        axiosPublic.post('/jwt', userInfo)
+        .then(res => {
+          if(res.data.token){
+            localStorage.setItem('access-token', res.data.token)
+          }
+        })
+      } 
+      else{
+   localStorage.removeItem('access-token',)
+
+      } // ইউজার আপডেট
       setLoading(false);
     });
 

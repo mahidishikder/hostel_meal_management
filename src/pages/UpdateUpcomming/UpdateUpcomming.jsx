@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import useAxiosPublic from '../../hooks/useAxiosPublic';
 
 function UpdateUpcoming() {
+  console.log('fff')
+  const axiosPublic = useAxiosPublic();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -27,8 +30,8 @@ function UpdateUpcoming() {
   useEffect(() => {
     const fetchMealData = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/upcoming/${id}`);
-        const data = await response.json();
+        const response = await axiosPublic.get(`/upcoming/${id}`);
+        const data = response.data;
         setFormData({
           name: data.name,
           image: data.image,
@@ -43,7 +46,7 @@ function UpdateUpcoming() {
     };
 
     fetchMealData();
-  }, [id]);
+  }, [id, axiosPublic]);
 
   // Handle form field changes
   const handleChange = (e) => {
@@ -59,21 +62,13 @@ function UpdateUpcoming() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`http://localhost:3000/upcoming/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await axiosPublic.put(`/upcoming/${id}`, formData);
 
-      const result = await response.json();
-
-      if (response.ok) {
+      if (response.status === 200) {
         Swal.fire('Success!', 'Upcoming meal updated successfully.', 'success');
-        navigate('/dashboard/manageUpcomming'); // Redirect to upcoming meals page
+        navigate('/dashboard/manageUpcomming');
       } else {
-        Swal.fire('Error!', result.message || 'Failed to update meal', 'error');
+        Swal.fire('Error!', 'Failed to update meal', 'error');
       }
     } catch (error) {
       console.error('Error updating meal:', error);
